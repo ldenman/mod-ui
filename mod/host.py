@@ -314,7 +314,7 @@ class Host(object):
         self.prefs = prefs
         self.msg_callback = msg_callback
 
-        self.addr = ("localhost", 5555)
+        self.addr = (os.environ['MOD_HOST_ADDR'], 5555)
         self.readsock = None
         self.writesock = None
         self.crashed = False
@@ -382,7 +382,16 @@ class Host(object):
         self.init_plugins_data()
 
         # clients at the end of the chain, all managed by mod-host
-        self.jack_hw_capture_prefix = "mod-host:out" if self.descriptor.get('has_noisegate', False) else "system:capture_"
+
+
+
+        if os.getenv("USE_STANDARD_JACK_OUTPUTS") is not None:
+            self.jack_hw_capture_prefix = "system:capture_"
+        elif APP and os.getenv("MOD_LIVE_ISO") is not None:
+            self.jack_hw_capture_prefix = "system:capture_"
+        else:
+            self.jack_hw_capture_prefix = "mod-host:out" if self.descriptor.get('has_noisegate', False) else "system:capture_"
+
 
         # used for network-manager
         self.jack_slave_prefix = "mod-slave"
